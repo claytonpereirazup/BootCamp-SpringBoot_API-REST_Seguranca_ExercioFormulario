@@ -6,6 +6,8 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -55,6 +57,7 @@ public class AlunoController {
 //	}
 	
 	@GetMapping
+	@Cacheable(value = "listaDeAlunos")
 	public Page<AlunoDto> listar(@PageableDefault(sort="id", direction=Direction.ASC,page = 0, size = 10) Pageable paginacao) {
 	//lista em memória
 	//Aluno aluno = new Aluno(1L, "Clayton Pereira", 48, "clayton.pereira@zup.com.br");
@@ -76,6 +79,7 @@ public class AlunoController {
 	
 	@PostMapping
 	@Transactional
+	@CacheEvict(value = "listaDeAlunos", allEntries = true)
 	public ResponseEntity<AlunoDto> cadastrar(@RequestBody @Valid AlunoForm form, UriComponentsBuilder uriBuilder) {
 		Aluno aluno = form.converteFomParaEntidade(form);
 		alunoRepository.save(aluno);
